@@ -1,8 +1,10 @@
 # Camera Works
 
-A camera plugin for flutter, which use CameraX on Android, native API on iOS, supports camera capture, flash, & switch camera.
+Camera Works is a simple library to handle cameras with an emphasis on stability. A camera plugin for flutter, which use CameraX on Android, native API on iOS, supports camera capture, flash, & switch camera. 
 
-*Note*: This plugin is inspired by the official [camera](https://pub.dev/packages/camera) 
+I made this plugin because there are several BUGs that are still unsolved in the official camera plugin.
+
+*Note*: For now this plugin only support in Android only. And this plugin inspired by the official [camera](https://pub.dev/packages/camera) 
 ## Features
 
 - [x] Switch camera front & back
