@@ -1,0 +1,24 @@
+name: camera_works
+description: A camera plugin for flutter, which use CameraX on Android, native API on iOS, supports camera capture, flash, & switch camera.
+version: 0.0.1
+homepage: https://github.com/wisnuwiry/camera_works
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  pedantic: ^1.11.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: space.wisnuwiry.camera_works
+        pluginClass: CameraWorksPlugin
