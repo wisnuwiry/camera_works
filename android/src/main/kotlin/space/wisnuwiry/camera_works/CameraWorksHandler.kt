@@ -83,26 +83,54 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
     }
 
     private fun getState(result: MethodChannel.Result) {
-        // Can't get exact denied or not_determined state without request. Just return not_determined when state isn't authorized
-        val state =
-                if (ContextCompat.checkSelfPermission(binding.activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) 1
-                else 0
-        result.success(state)
+        try {
+            // Can't get exact denied or not_determined state without request. Just return not_determined when state isn't authorized
+            val state =
+                    if (ContextCompat.checkSelfPermission(binding.activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) 1
+                    else 0
+            result.success(state)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        }
     }
 
     private fun requestPermission(result: MethodChannel.Result) {
-        listener = PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
-            if (requestCode != REQUEST_CODE) {
-                false
-            } else {
-                val authorized = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                result.success(authorized)
-                listener = null
-                true
+        try {
+            listener = PluginRegistry.RequestPermissionsResultListener { requestCode, _, grantResults ->
+                if (requestCode != REQUEST_CODE) {
+                    false
+                } else {
+                    val authorized = grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    result.success(authorized)
+                    listener = null
+                    true
+                }
             }
+            val permissions = arrayOf(Manifest.permission.CAMERA)
+            ActivityCompat.requestPermissions(binding.activity, permissions, REQUEST_CODE)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
         }
-        val permissions = arrayOf(Manifest.permission.CAMERA)
-        ActivityCompat.requestPermissions(binding.activity, permissions, REQUEST_CODE)
     }
 
     private fun start(call: MethodCall, result: MethodChannel.Result) {
@@ -132,7 +160,13 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
                 val answer = mapOf("textureId" to textureId, "size" to size, "hasFlash" to camera!!.torchable)
                 result.success(answer)
 
-            } catch (e: IllegalStateException) {
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, e.message ?: "")
+                result.error(ERROR_CODE, e.message, e.stackTrace)
+            } catch (e: IllegalArgumentException) {
+                Log.e(TAG, e.message ?: "")
+                result.error(ERROR_CODE, e.message, e.stackTrace)
+            } catch (e: RuntimeException) {
                 Log.e(TAG, e.message ?: "")
                 result.error(ERROR_CODE, e.message, e.stackTrace)
             } catch (e: Exception) {
@@ -198,75 +232,159 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
     }
 
     private fun setFlash(call: MethodCall, result: MethodChannel.Result) {
-        val state = call.arguments == 1
-        camera!!.cameraControl.enableTorch(state)
-        result.success(true)
+        try {
+            val state = call.arguments == 1
+            camera!!.cameraControl.enableTorch(state)
+            result.success(true)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        }
     }
 
     /** Returns true if the device has an available back camera. False otherwise */
     private fun hasBackCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
+        return try {
+            cameraProvider?.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA) ?: false
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            false
+        }
     }
 
     /** Returns true if the device has an available front camera. False otherwise */
     private fun hasFrontCamera(): Boolean {
-        return cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
+        return try {
+            cameraProvider?.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA) ?: false
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            false
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            false
+        }
     }
 
     private fun switchCamera(call: MethodCall, result: MethodChannel.Result) {
-        if (call.arguments is Int) {
-            selectLens(call.arguments as Int, true)
-            bindCameraUseCases()
-            result.success(true)
-        } else {
-            Log.e(TAG, "Params Camera Id Is a Null")
-            result.error(ERROR_CODE, "Params Camera Id Is a Null", "")
+        try {
+            if (call.arguments is Int) {
+                selectLens(call.arguments as Int, true)
+                bindCameraUseCases()
+                result.success(true)
+            } else {
+                Log.e(TAG, "Params Camera Id Is a Null")
+                result.error(ERROR_CODE, "Params Camera Id Is a Null", "")
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
         }
     }
 
     private fun stop(result: MethodChannel.Result) {
-        val owner = binding.activity as LifecycleOwner
-        camera!!.cameraInfo.torchState.removeObservers(owner)
-        cameraProvider!!.unbindAll()
-        textureEntry!!.release()
+        try {
+            val owner = binding.activity as LifecycleOwner
+            camera?.cameraInfo?.torchState?.removeObservers(owner)
+            cameraProvider?.unbindAll()
+            textureEntry?.release()
 
-        camera = null
-        textureEntry = null
-        cameraProvider = null
-        imageCapture = null
+            camera = null
+            textureEntry = null
+            cameraProvider = null
+            imageCapture = null
 
-        result.success(true)
+            result.success(true)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        }
     }
 
     private fun takePicture(result: MethodChannel.Result) {
-        // Create output file to hold the image
-        val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
+        try {
+            // Create output file to hold the image
+            val photoFile = createFile(outputDirectory, FILENAME, PHOTO_EXTENSION)
 
-        // Setup image capture metadata
-        val metadata = Metadata().apply {
-            // Mirror image when using the front camera
-            isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            // Setup image capture metadata
+            val metadata = Metadata().apply {
+                // Mirror image when using the front camera
+                isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
+            }
+
+            // Create output options object which contains file + metadata
+            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
+                    .setMetadata(metadata)
+                    .build()
+
+            imageCapture?.takePicture(
+                    outputOptions, executor, object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                    result.error(ERROR_CODE, "Photo capture failed: ${exc.message}", "")
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
+                    Log.d(TAG, "Photo capture succeeded: $savedUri")
+
+                    result.success(savedUri.path)
+                }
+            })
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: RuntimeException) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
+        } catch (e: Exception) {
+            Log.e(TAG, e.message ?: "")
+            result.error(ERROR_CODE, e.message, e.stackTrace)
         }
-
-        // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile)
-                .setMetadata(metadata)
-                .build()
-
-        imageCapture?.takePicture(
-                outputOptions, executor, object : ImageCapture.OnImageSavedCallback {
-            override fun onError(exc: ImageCaptureException) {
-                Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                result.error(ERROR_CODE, "Photo capture failed: ${exc.message}", "")
-            }
-
-            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                val savedUri = output.savedUri ?: Uri.fromFile(photoFile)
-                Log.d(TAG, "Photo capture succeeded: $savedUri")
-
-                result.success(savedUri.path)
-            }
-        })
     }
 
     /** Use app's file directory */
