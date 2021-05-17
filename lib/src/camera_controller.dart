@@ -21,8 +21,7 @@ abstract class CameraController {
   /// [facing] target facing used to select camera.
   ///
   /// [formats] the barcode formats for image analyzer.
-  factory CameraController([CameraType facing = CameraType.back]) =>
-      _CameraController(facing);
+  factory CameraController(CameraType facing) => _CameraController(facing);
 
   /// Start the camera asynchronously.
   Future<void> startAsync();
@@ -112,6 +111,7 @@ class _CameraController implements CameraController {
       if (state != authorized) {
         throw PlatformException(code: 'NO ACCESS');
       }
+      print(facing.index);
       // Start camera.
       final answer =
           await method.invokeMapMethod<String, dynamic>('start', facing.index);

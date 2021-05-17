@@ -116,10 +116,8 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
                 textureEntry = textureRegistry.createSurfaceTexture()
                 val textureId = textureEntry!!.id()
 
-                if (call.arguments == Int) {
-                    selectLens(call.arguments as Int)
-                } else if (!hasBackCamera()) {
-                    selectLens(CameraSelector.LENS_FACING_FRONT)
+                if (call.arguments is Int) {
+                    selectLens(call.arguments as Int, true)
                 }
 
                 bindCameraUseCases()
@@ -217,7 +215,7 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
 
     private fun switchCamera(call: MethodCall, result: MethodChannel.Result) {
         if (call.arguments is Int) {
-            selectLens(call.arguments as Int)
+            selectLens(call.arguments as Int, true)
             bindCameraUseCases()
             result.success(true)
         } else {
@@ -278,14 +276,17 @@ class CameraWorksHandler(private val binding: ActivityPluginBinding, private val
         return appContext.filesDir
     }
 
-    private fun selectLens(id: Int) {
+    private fun selectLens(id: Int, withCheck: Boolean) {
         if (id in 0..1) {
-            if (id == 0 && hasFrontCamera()) {
-                lensFacing = id
-            } else if (id == 1 && hasBackCamera()) {
-                lensFacing = id
+            if (withCheck) {
+                if (id == 0 && hasFrontCamera()) {
+                    lensFacing = id
+                } else if (id == 1 && hasBackCamera()) {
+                    lensFacing = id
+                }
+                return
             }
-
+            lensFacing = id
         }
     }
 }

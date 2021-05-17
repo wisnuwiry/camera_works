@@ -1,8 +1,6 @@
 package space.wisnuwiry.camera_works
 
 import androidx.annotation.NonNull
-import androidx.lifecycle.Lifecycle
-import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
