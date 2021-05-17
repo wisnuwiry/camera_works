@@ -10,19 +10,21 @@ class CameraPage extends StatefulWidget {
 
 class _CameraPageState extends State<CameraPage> {
   late CameraController cameraController;
-  var _lensType = CameraType.back;
+  var _lensType = CameraType.front;
 
   @override
   void initState() {
     super.initState();
-    cameraController = CameraController();
+    cameraController = CameraController(_lensType);
     start();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('Camera Demo'),
+      ),
       body: Stack(
         children: [
           CameraView(cameraController),
@@ -44,14 +46,11 @@ class _CameraPageState extends State<CameraPage> {
         IconButton(
             iconSize: 16,
             icon: Icon(Icons.flip_camera_android, size: 32),
-            color: Colors.white,
+            color: Colors.blue,
             padding: EdgeInsets.zero,
             onPressed: () {
-              if (_lensType == CameraType.back) {
-                switchCamera(CameraType.front);
-              } else {
-                switchCamera(CameraType.back);
-              }
+              switchCamera(
+                  _lensType.index == 0 ? CameraType.back : CameraType.front);
             }),
         IconButton(
           iconSize: 70,
@@ -91,6 +90,8 @@ class _CameraPageState extends State<CameraPage> {
   void start() async {
     try {
       await cameraController.startAsync();
+    } on CameraException catch (e) {
+      _showErrorSnackBar(e.message ?? '');
     } catch (e) {
       log(e.toString());
     }
@@ -99,6 +100,8 @@ class _CameraPageState extends State<CameraPage> {
   void stop() {
     try {
       cameraController.dispose();
+    } on CameraException catch (e) {
+      _showErrorSnackBar(e.message ?? '');
     } catch (e) {
       log(e.toString());
     }
@@ -107,6 +110,8 @@ class _CameraPageState extends State<CameraPage> {
   void setFlash(FlashState type) async {
     try {
       await cameraController.setFlash(type);
+    } on CameraException catch (e) {
+      _showErrorSnackBar(e.message ?? '');
     } catch (e) {
       log(e.toString());
     }
@@ -118,6 +123,8 @@ class _CameraPageState extends State<CameraPage> {
       setState(() {
         _lensType = type;
       });
+    } on CameraException catch (e) {
+      _showErrorSnackBar(e.message ?? '');
     } catch (e) {
       log(e.toString());
     }
@@ -132,75 +139,15 @@ class _CameraPageState extends State<CameraPage> {
         backgroundColor: Colors.green,
       ));
     } on CameraException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(e.message ?? ''),
-        backgroundColor: Colors.red,
-      ));
-
+      _showErrorSnackBar(e.message ?? '');
       log(e.toString());
     }
   }
-}
 
-class OpacityCurve extends Curve {
-  @override
-  double transform(double t) {
-    if (t < 0.1) {
-      return t * 10;
-    } else if (t <= 0.9) {
-      return 1.0;
-    } else {
-      return (1.0 - t) * 10;
-    }
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message),
+      backgroundColor: Colors.red,
+    ));
   }
-}
-
-class AnimatedLine extends AnimatedWidget {
-  final Animation offsetAnimation;
-  final Animation opacityAnimation;
-
-  AnimatedLine(
-      {Key? key, required this.offsetAnimation, required this.opacityAnimation})
-      : super(key: key, listenable: offsetAnimation);
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: opacityAnimation.value,
-      child: CustomPaint(
-        size: MediaQuery.of(context).size,
-        painter: LinePainter(offsetAnimation.value),
-      ),
-    );
-  }
-}
-
-class LinePainter extends CustomPainter {
-  final double offset;
-
-  LinePainter(this.offset);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.save();
-    final radius = size.width * 0.45;
-    final dx = size.width / 2.0;
-    final center = Offset(dx, radius);
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final paint = Paint()
-      ..isAntiAlias = true
-      ..shader = RadialGradient(
-        colors: [Colors.green, Colors.green.withOpacity(0.0)],
-        radius: 0.5,
-      ).createShader(rect);
-    canvas.translate(0.0, size.height * offset);
-    canvas.scale(1.0, 0.1);
-    final top = Rect.fromLTRB(0, 0, size.width, radius);
-    canvas.clipRect(top);
-    canvas.drawCircle(center, radius, paint);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

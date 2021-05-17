@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'views.dart';
+import 'camera_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +17,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(style);
 
     return MaterialApp(
-      home: HomePage(),
-      theme: ThemeData.light(),
-      routes: {
-        'analyze': (context) => CameraPage(),
-      },
+      home: CameraPage(),
     );
   }
 }
